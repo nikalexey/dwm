@@ -278,6 +278,8 @@ static char stext[256];
 static int screen;
 static int sw, sh;           /* X display screen geometry width, height */
 static int bh, blw = 0;      /* bar geometry */
+static int marginbottom	= 20;/* Bottom margin for dzen */
+
 static int (*xerrorxlib)(Display *, XErrorEvent *);
 static unsigned int numlockmask = 0;
 static void (*handler[LASTEvent]) (XEvent *) = {
@@ -1722,6 +1724,7 @@ setup(void) {
 	if (!drw->fontcount)
 		die("No fonts could be loaded.\n");
 	bh = drw->fonts[0]->h + 2;
+	marginbottom = bh;
 	updategeom();
 	/* init atoms */
 	wmatom[WMProtocols] = XInternAtom(dpy, "WM_PROTOCOLS", False);
@@ -1876,11 +1879,13 @@ togglebar(const Arg *arg) {
 	if(showsystray) {
 		XWindowChanges wc;
 		if(!selmon->showbar)
-			wc.y = -bh;
+		{
+			wc.y = -(bh + marginbottom);
+		}
 		else if(selmon->showbar) {
-			wc.y = 0;
+			wc.y = -marginbottom;
 			if(!selmon->topbar)
-				wc.y = selmon->mh - bh;
+				wc.y = selmon->mh - (bh + marginbottom);
 		}
 		XConfigureWindow(dpy, systray->win, CWY, &wc);
 	}
